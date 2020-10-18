@@ -6,6 +6,8 @@ ESP32 based IoT device to monitor usage of a BWT filter and report it to Home As
 
 This code is running on a [FireBeetle ESP32 v4.0](https://www.dfrobot.com/product-1590.html) and is connected to a YF-S201 flow sensor along with a no-name 1100mAh LiPo battery.
 
+On the FireBeetle to get battery monitoring on pin A0 to work R10 and R11 need to be shorted (these 0R resistors in the schematic). Reference and schematic: https://www.dfrobot.com/forum/viewtopic.php?t=19292
+
 ## Dependencies
 
 * [ESP32 board definitions](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md)
