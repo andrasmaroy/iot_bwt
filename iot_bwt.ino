@@ -22,7 +22,7 @@
 #define MQTT_PASSWORD ""
 
 // Battery
-#define BATTERY_MIN 1650
+#define BATTERY_MIN 1866
 #define BATTERY_MAX 2370
 
 // Flow sensor
