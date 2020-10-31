@@ -122,7 +122,7 @@ bool announce_device() {
   configuration["name"] = "BWT - Water";
   configuration["unit_of_measurement"] = "L";
   configuration["unique_id"] = "bwtwatersensor1";
-  configuration["expire_after"] = 172800; // 2 days
+  configuration["expire_after"] = 90000; // 25 hours
   configuration["availability_topic"] = HASS_TOPIC_BASE + "W/available";
   configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
   configuration["value_template"] = "{{ value_json.water}}";
