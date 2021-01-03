@@ -79,206 +79,206 @@ WiFiClientSecure wifiClient;
 PubSubClient mqttClient(MQTT_URL, MQTT_PORT, wifiClient);
 
 bool publish_config(const String& topic, const byte* bytes, size_t len) {
-  Serial.print("Publishing message to '");
-  Serial.print(topic);
-  Serial.println("'");
+    Serial.print("Publishing message to '");
+    Serial.print(topic);
+    Serial.println("'");
 
-  if (! mqttClient.beginPublish(topic.c_str(), len, false)) {
-    Serial.println("Error beginning publish");
-    return false;
-  }
-  if (len != mqttClient.write(bytes, len)) {
-    Serial.println("Mismatch in written message length!");
-    return false;
-  }
-  if (! mqttClient.endPublish()) {
-    Serial.println("Error ending publish");
-    return false;
-  }
-  return true;
+    if (! mqttClient.beginPublish(topic.c_str(), len, false)) {
+        Serial.println("Error beginning publish");
+        return false;
+    }
+    if (len != mqttClient.write(bytes, len)) {
+        Serial.println("Mismatch in written message length!");
+        return false;
+    }
+    if (! mqttClient.endPublish()) {
+        Serial.println("Error ending publish");
+        return false;
+    }
+    return true;
 }
 
 bool publish_message(const String& topic, const String& msg) {
-  Serial.print("Publishing message to '");
-  Serial.print(topic);
-  Serial.println("'");
+    Serial.print("Publishing message to '");
+    Serial.print(topic);
+    Serial.println("'");
 
-  bool res = mqttClient.publish(topic.c_str(), msg.c_str());
-  for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
-    Serial.println("Error publishing message");
-    Serial.println(" try again in 5 seconds");
-    delay(RETRY_DELAY);
-    res = mqttClient.publish(topic.c_str(), msg.c_str());
-  }
-  return res;
+    bool res = mqttClient.publish(topic.c_str(), msg.c_str());
+    for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
+        Serial.println("Error publishing message");
+        Serial.println(" try again in 5 seconds");
+        delay(RETRY_DELAY);
+        res = mqttClient.publish(topic.c_str(), msg.c_str());
+    }
+    return res;
 }
 
 bool announce_device() {
-  Serial.println("Announcing devices");
-  StaticJsonDocument<400> configuration;
-  byte configBytes[400];
-  size_t msgLen;
-  uint8_t retries;
+    Serial.println("Announcing devices");
+    StaticJsonDocument<400> configuration;
+    byte configBytes[400];
+    size_t msgLen;
+    uint8_t retries;
 
-  // Flow sensor
-  configuration["name"] = "BWT - Water";
-  configuration["unit_of_measurement"] = "L";
-  configuration["unique_id"] = "bwtwatersensor1";
-  configuration["expire_after"] = 90000; // 25 hours
-  configuration["availability_topic"] = HASS_TOPIC_BASE + "W/available";
-  configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
-  configuration["value_template"] = "{{ value_json.water}}";
+    // Flow sensor
+    configuration["name"] = "BWT - Water";
+    configuration["unit_of_measurement"] = "L";
+    configuration["unique_id"] = "bwtwatersensor1";
+    configuration["expire_after"] = 90000; // 25 hours
+    configuration["availability_topic"] = HASS_TOPIC_BASE + "W/available";
+    configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
+    configuration["value_template"] = "{{ value_json.water}}";
 
-  msgLen = measureJson(configuration);
-  serializeJson(configuration, configBytes, msgLen + 1);
+    msgLen = measureJson(configuration);
+    serializeJson(configuration, configBytes, msgLen + 1);
 
-  bool res = publish_config(HASS_TOPIC_BASE + "W/config", configBytes, msgLen);
-  for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
-    Serial.println(" try again in 5 seconds");
-    delay(RETRY_DELAY);
-    res = publish_config(HASS_TOPIC_BASE + "W/config", configBytes, msgLen);
-  }
-  if (!res) {
-    return false;
-  }
-  serializeJsonPretty(configuration, Serial);
-  Serial.println();
-  if (! publish_message(HASS_TOPIC_BASE + "W/available", "online")) {
-    return false;
-  }
+    bool res = publish_config(HASS_TOPIC_BASE + "W/config", configBytes, msgLen);
+    for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
+        Serial.println(" try again in 5 seconds");
+        delay(RETRY_DELAY);
+        res = publish_config(HASS_TOPIC_BASE + "W/config", configBytes, msgLen);
+    }
+    if (!res) {
+        return false;
+    }
+    serializeJsonPretty(configuration, Serial);
+    Serial.println();
+    if (! publish_message(HASS_TOPIC_BASE + "W/available", "online")) {
+        return false;
+    }
 
-  // Battery sensor
-  configuration["device_class"] = "battery";
-  configuration["name"] = "BWT - Battery Level";
-  configuration["unit_of_measurement"] = "%";
-  configuration["unique_id"] = "bwtbatsensor1";
-  configuration["expire_after"] = 172800; // 2 days
-  configuration["availability_topic"] = HASS_TOPIC_BASE + "B/available";
-  configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
-  configuration["value_template"] = "{{ value_json.battery }}";
+    // Battery sensor
+    configuration["device_class"] = "battery";
+    configuration["name"] = "BWT - Battery Level";
+    configuration["unit_of_measurement"] = "%";
+    configuration["unique_id"] = "bwtbatsensor1";
+    configuration["expire_after"] = 172800; // 2 days
+    configuration["availability_topic"] = HASS_TOPIC_BASE + "B/available";
+    configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
+    configuration["value_template"] = "{{ value_json.battery }}";
 
-  msgLen = measureJson(configuration);
-  serializeJson(configuration, configBytes, msgLen + 1);
-  res = publish_config(HASS_TOPIC_BASE + "B/config", configBytes, msgLen);
-  for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
-    Serial.println(" try again in 5 seconds");
-    delay(RETRY_DELAY);
+    msgLen = measureJson(configuration);
+    serializeJson(configuration, configBytes, msgLen + 1);
     res = publish_config(HASS_TOPIC_BASE + "B/config", configBytes, msgLen);
-  }
-  if (!res) {
-    return false;
-  }
-  serializeJsonPretty(configuration, Serial);
-  Serial.println();
-  if (! publish_message(HASS_TOPIC_BASE + "B/available", "online")) {
-    return false;
-  }
-  return true;
+    for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
+        Serial.println(" try again in 5 seconds");
+        delay(RETRY_DELAY);
+        res = publish_config(HASS_TOPIC_BASE + "B/config", configBytes, msgLen);
+    }
+    if (!res) {
+        return false;
+    }
+    serializeJsonPretty(configuration, Serial);
+    Serial.println();
+    if (! publish_message(HASS_TOPIC_BASE + "B/available", "online")) {
+        return false;
+    }
+    return true;
 }
 
 void sleep() {
-  Serial.println("Entering deep sleep\n\n");
-  ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_PERIOD));
-  esp_deep_sleep_start();
+    Serial.println("Entering deep sleep\n\n");
+    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_PERIOD));
+    esp_deep_sleep_start();
 }
 
 void setup() {
-  //Initialize serial and wait for port to open:
-  Serial.begin(115200);
-  delay(100);
+    //Initialize serial and wait for port to open:
+    Serial.begin(115200);
+    delay(100);
 
-  esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
-  if (cause != ESP_SLEEP_WAKEUP_TIMER) {
-      printf("Not timed wakeup, initializing ULP\n");
-      init_ulp_program();
-  } else {
-    printf("ULP wakeup, saving pulse count\n");
-    update_pulse_count();
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(WIFI_SSID);
-    WiFi.begin(WIFI_SSID, WIFI_PSK);
+    esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
+    if (cause != ESP_SLEEP_WAKEUP_TIMER) {
+        printf("Not timed wakeup, initializing ULP\n");
+        init_ulp_program();
+    } else {
+        printf("ULP wakeup, saving pulse count\n");
+        update_pulse_count();
+        Serial.print("Attempting to connect to SSID: ");
+        Serial.println(WIFI_SSID);
+        WiFi.begin(WIFI_SSID, WIFI_PSK);
 
-    // attempt to connect to Wifi network:
-    bool res = WiFi.status() == WL_CONNECTED;
-    for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
-      Serial.print(".");
-      delay(RETRY_DELAY);
-      res = WiFi.status() == WL_CONNECTED;
+        // attempt to connect to Wifi network:
+        bool res = WiFi.status() == WL_CONNECTED;
+        for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
+            Serial.print(".");
+            delay(RETRY_DELAY);
+            res = WiFi.status() == WL_CONNECTED;
+        }
+        if (!res) {
+            Serial.println("WiFi connection failed, sleeping");
+            sleep();
+        }
+
+        Serial.print("Connected to ");
+        Serial.println(WIFI_SSID);
+        Serial.print("IP address: ");
+        Serial.println(WiFi.localIP());
+
+        wifiClient.setCACert(Lets_Encrypt_R3);
+
+        res = mqttClient.connected();
+        for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
+            Serial.print("Attempting MQTT connection...");
+            if (mqttClient.connect("iot_bwt", MQTT_USER, MQTT_PASSWORD)) {
+                Serial.println("connected");
+            } else {
+                Serial.print("failed, rc=");
+                Serial.print(mqttClient.state());
+                Serial.println(" try again in 5 seconds");
+                // Wait 5 seconds before retrying
+                delay(RETRY_DELAY);
+            }
+            res = mqttClient.connected();
+        }
+        if (!res) {
+            Serial.println("MQTT connection failed, sleeping");
+            sleep();
+        }
+
+        if (!announce_device()) {
+            Serial.println("Announcing devices failed, sleeping");
+            sleep();
+        }
+
+        StaticJsonDocument<46> state;
+        String stateStr;
+
+        state["battery"] = (uint8_t)((float)(analogRead(A0) - BATTERY_MIN) / (BATTERY_MAX - BATTERY_MIN) * 100);
+        state["water"] = 0;
+        stateStr = "";
+        serializeJson(state, stateStr);
+        res = publish_message(HASS_TOPIC_BASE + "/state", stateStr);
+        serializeJsonPretty(state, Serial);
+        Serial.println();
+
+        if (res) {
+            // Publish actual usage second
+            const char* namespc = "pulsecnt";
+            const char* count_key = "count";
+
+            ESP_ERROR_CHECK( nvs_flash_init() );
+            nvs_handle handle;
+            ESP_ERROR_CHECK( nvs_open(namespc, NVS_READWRITE, &handle));
+            uint32_t pulse_count = 0;
+            esp_err_t err = nvs_get_u32(handle, count_key, &pulse_count);
+            assert(err == ESP_OK || err == ESP_ERR_NVS_NOT_FOUND);
+
+            state["water"] = (float)pulse_count / 400;
+            stateStr = "";
+            serializeJson(state, stateStr);
+            if (publish_message(HASS_TOPIC_BASE + "/state", stateStr)) {
+                ESP_ERROR_CHECK(nvs_set_u32(handle, count_key, 0));
+                ESP_ERROR_CHECK(nvs_commit(handle));
+            }
+            serializeJsonPretty(state, Serial);
+            Serial.println();
+
+            nvs_close(handle);
+        }
     }
-    if (!res) {
-      Serial.println("WiFi connection failed, sleeping");
-      sleep();
-    }
 
-    Serial.print("Connected to ");
-    Serial.println(WIFI_SSID);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-
-    wifiClient.setCACert(Lets_Encrypt_R3);
-
-    res = mqttClient.connected();
-    for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
-      Serial.print("Attempting MQTT connection...");
-      if (mqttClient.connect("iot_bwt", MQTT_USER, MQTT_PASSWORD)) {
-        Serial.println("connected");
-      } else {
-        Serial.print("failed, rc=");
-        Serial.print(mqttClient.state());
-        Serial.println(" try again in 5 seconds");
-        // Wait 5 seconds before retrying
-        delay(RETRY_DELAY);
-      }
-      res = mqttClient.connected();
-    }
-    if (!res) {
-      Serial.println("MQTT connection failed, sleeping");
-      sleep();
-    }
-
-    if (!announce_device()) {
-      Serial.println("Announcing devices failed, sleeping");
-      sleep();
-    }
-
-    StaticJsonDocument<46> state;
-    String stateStr;
-
-    state["battery"] = (uint8_t)((float)(analogRead(A0) - BATTERY_MIN) / (BATTERY_MAX - BATTERY_MIN) * 100);
-    state["water"] = 0;
-    stateStr = "";
-    serializeJson(state, stateStr);
-    res = publish_message(HASS_TOPIC_BASE + "/state", stateStr);
-    serializeJsonPretty(state, Serial);
-    Serial.println();
-
-    if (res) {
-      // Publish actual usage second
-      const char* namespc = "pulsecnt";
-      const char* count_key = "count";
-
-      ESP_ERROR_CHECK( nvs_flash_init() );
-      nvs_handle handle;
-      ESP_ERROR_CHECK( nvs_open(namespc, NVS_READWRITE, &handle));
-      uint32_t pulse_count = 0;
-      esp_err_t err = nvs_get_u32(handle, count_key, &pulse_count);
-      assert(err == ESP_OK || err == ESP_ERR_NVS_NOT_FOUND);
-
-      state["water"] = (float)pulse_count / 400;
-      stateStr = "";
-      serializeJson(state, stateStr);
-      if (publish_message(HASS_TOPIC_BASE + "/state", stateStr)) {
-        ESP_ERROR_CHECK(nvs_set_u32(handle, count_key, 0));
-        ESP_ERROR_CHECK(nvs_commit(handle));
-      }
-      serializeJsonPretty(state, Serial);
-      Serial.println();
-
-      nvs_close(handle);
-    }
-  }
-
-  sleep();
+    sleep();
 }
 
 static void init_ulp_program(void) {
@@ -291,7 +291,8 @@ static void init_ulp_program(void) {
     int rtcio_num = PIN_RTC;
     assert(rtc_gpio_is_valid_gpio(gpio_num) && "GPIO used for pulse counting must be an RTC IO");
 
-    /* Initialize some variables used by ULP program.
+    /*
+     * Initialize some variables used by ULP program.
      * Each 'ulp_xyz' variable corresponds to 'xyz' variable in the ULP program.
      * These variables are declared in an auto generated header file,
      * 'ulp_main.h', name of this file is defined in component.mk as ULP_APP_NAME.
@@ -313,7 +314,8 @@ static void init_ulp_program(void) {
     rtc_gpio_pullup_dis(gpio_num);
     rtc_gpio_hold_en(gpio_num);
 
-    /* Disconnect GPIO12 and GPIO15 to remove current drain through
+    /*
+     * Disconnect GPIO12 and GPIO15 to remove current drain through
      * pullup/pulldown resistors.
      * GPIO12 may be pulled high to select flash voltage.
      */
@@ -321,12 +323,13 @@ static void init_ulp_program(void) {
     rtc_gpio_isolate(GPIO_NUM_15);
     esp_deep_sleep_disable_rom_logging(); // suppress boot messages
 
-     /* Set ULP wake up period
-      * Minimum pulse width has to be T * (ulp_debounce_counter + 1)
-      * Maximum flow rate is about 6 L/min which corresponds to 50Hz
-      * To be on the safe side consider double that
-      * That means a wake up period that is able to detect 10ms pulses
-      */
+    /*
+     * Set ULP wake up period
+     * Minimum pulse width has to be T * (ulp_debounce_counter + 1)
+     * Maximum flow rate is about 6 L/min which corresponds to 50Hz
+     * To be on the safe side consider double that
+     * That means a wake up period that is able to detect 10ms pulses
+     */
     ulp_set_wakeup_period(0, 10.0 / (ulp_debounce_counter + 1) * 1000);
 
     /* Start the program */
