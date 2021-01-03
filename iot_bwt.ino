@@ -244,6 +244,14 @@ void setup() {
         StaticJsonDocument<46> state;
         String stateStr;
 
+        /*
+         * Workaround Home Assistant' utility meter behaviour
+         * It expects a monotonically increasing value and cumulates the
+         * difference for each submission. To trick this into adding all the
+         * submitted values straight up, we can send a 0 value before sending
+         * the real one, this way the difference is always compared to 0, so
+         * the correct value gets added.
+         */
         state["battery"] = (uint8_t)((float)(analogRead(A0) - BATTERY_MIN) / (BATTERY_MAX - BATTERY_MIN) * 100);
         state["water"] = 0;
         stateStr = "";
