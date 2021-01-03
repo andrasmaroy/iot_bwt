@@ -1,0 +1,85 @@
+---
+mqtt:
+  discovery: true
+  # ...
+
+notify:
+  - name: email
+    # ...
+
+utility_meter:
+  bwt:
+    source: sensor.bwt_water
+    cycle: yearly
+    net_consumption: false
+    tariffs:
+      - used
+
+script:
+  reset_bwt:
+    alias: Reset BWT meter
+    description: Reset BWT meter value and metering period
+    sequence:
+      - service: utility_meter.reset
+        data:
+          entity_id: utility_meter.bwt
+        entity_id: utility_meter.bwt
+  calibrate_bwt:
+    alias: Calibrate BWT meter
+    description: Calibrate BWT meter with the value from BWT calibration value input_number
+    sequence:
+      - service: utility_meter.calibrate
+        data:
+          value: '{{ states("input_number.calibrate_bwt") | int }}'
+        entity_id: sensor.bwt_used
+
+input_number:
+  calibrate_bwt:
+    name: BWT calibration value
+    initial: 0
+    min: 0
+    max: 750
+    step: 1
+    mode: box
+    unit_of_measurement: L
+
+automation:
+  - alias: "BWT time to order"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bwt_used
+        above: '600'
+    action:
+      service: notify.email
+      data:
+        message: "BWT usage above 600L, time to order a new one: https://www.amazon.de/-/en/gp/product/B00X20G216"
+  - alias: "BWT time to replace"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bwt_used
+        above: '700'
+    action:
+      service: notify.email
+      data:
+        message: "BWT usage above 700L, time to replace"
+  - alias: "Battery low"
+    trigger:
+      platform: numeric_state
+      entity_id:
+        - sensor.bwt_battery_level
+      below: '25'
+    action:
+      service: notify.email
+      data:
+        message: "Battery low on {{ trigger.entity_id }}"
+  - alias: "Battery died"
+    trigger:
+      platform: state
+      entity_id:
+        - sensor.bwt_battery_level
+      to: "unavailable"
+    action:
+      service: notify.email
+      data:
+        message: "Battery died on {{ trigger.entity_id }}"
+

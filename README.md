@@ -1,6 +1,6 @@
 # iot_bwt
 
-ESP32 based IoT device to monitor usage of a BWT filter and report it to Home Assistant via MQTT.
+ESP32 based IoT device to monitor usage of a BWT water filter and report it to Home Assistant via MQTT with TLS and authentication.
 
 ## Components
 
@@ -20,6 +20,10 @@ On the FireBeetle to get battery monitoring on pin A0 to work R10 and R11 need t
 All relevant configuration values are listed at the beginning of [iot_bwt.ino](iot_bwt.ino), fill in the necessary values to get the project working.
 
 To be able to use secure MQTT connections the appropriate CA has to be added. The one in the code is Let's Encrypt's cross-signed intermediate CA, any pem format CA should work.
+
+### Home Assistant
+
+The way the code communicates with Home Assistant assumes that [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) is enabled and presents as two sensors to be used with a [Utility Meter](https://www.home-assistant.io/integrations/utility_meter/). See example of relevant configuration in [home-assistant.yaml](home-assistant.yaml)
 
 ## Acknowledgments
 
