@@ -4,9 +4,11 @@ ESP32 based IoT device to monitor usage of a BWT water filter and report it to H
 
 ## Components
 
-This code is running on a [FireBeetle ESP32 v4.0](https://www.dfrobot.com/product-1590.html) and is connected to a YF-S201 flow sensor along with a no-name 1100mAh LiPo battery.
+This code is running on a [FireBeetle ESP32 v4.0](https://www.dfrobot.com/product-1590.html) and is connected to a YF-S201 flow sensor along with a no-name 1100mAh LiPo battery. Connect the pins of YF-S201 like this: red - 3.3V, black - GND, yellow - `D2`/`IO25`on the FireBeetle board and use the JST PH 2-Pin battery terminal already on the board for the battery.
 
-On the FireBeetle to get battery monitoring on pin A0 to work R10 and R11 need to be shorted (these 0R resistors in the schematic). Reference and schematic: https://www.dfrobot.com/forum/viewtopic.php?t=19292
+On the FireBeetle to get battery monitoring on pin A0 to work R10 and R11 need to be shorted (these are 0R resistors in the schematic). Reference and schematic: https://www.dfrobot.com/forum/viewtopic.php?t=19292
+
+Flashing the FireBeetle with Arduino IDE: set upload speed to 921600 and flash frequency to 80MHz.
 
 ## Dependencies
 
@@ -20,6 +22,7 @@ On the FireBeetle to get battery monitoring on pin A0 to work R10 and R11 need t
 All relevant configuration values are listed at the beginning of [iot_bwt.ino](iot_bwt.ino), fill in the necessary values to get the project working.
 
 To be able to use secure MQTT connections the appropriate CA has to be added. The one in the code is Let's Encrypt's cross-signed intermediate CA, any pem format CA should work.
+**Disclaimer:** I've only got this working got this working with directly the signing certificate, not with a complete certificate chain.
 
 ### Home Assistant
 
