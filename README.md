@@ -19,7 +19,7 @@ Flashing the FireBeetle with Arduino IDE: set upload speed to 921600 and flash f
 
 ## Configuration
 
-All relevant configuration values are listed at the beginning of [iot_bwt.ino](iot_bwt.ino), fill in the necessary values to get the project working.
+All relevant configuration values are in [config.h](config.h), fill in the necessary values to get the project working.
 
 To be able to use secure MQTT connections the appropriate CA has to be added. The one in the code is Let's Encrypt's cross-signed intermediate CA, any pem format CA should work.
 **Disclaimer:** I've only got this working got this working with directly the signing certificate, not with a complete certificate chain.
