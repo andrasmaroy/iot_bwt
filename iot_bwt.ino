@@ -67,7 +67,6 @@ bool announce_device() {
     configuration["unit_of_measurement"] = "L";
     configuration["unique_id"] = "bwtwatersensor1";
     configuration["expire_after"] = 90000; // 25 hours
-    configuration["availability_topic"] = HASS_TOPIC_BASE + "W/available";
     configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
     configuration["value_template"] = "{{ value_json.water}}";
 
@@ -85,9 +84,6 @@ bool announce_device() {
     }
     serializeJsonPretty(configuration, Serial);
     Serial.println();
-    if (! publish_message(HASS_TOPIC_BASE + "W/available", "online")) {
-        return false;
-    }
 
     // Battery sensor
     configuration["device_class"] = "battery";
@@ -95,7 +91,6 @@ bool announce_device() {
     configuration["unit_of_measurement"] = "%";
     configuration["unique_id"] = "bwtbatsensor1";
     configuration["expire_after"] = 172800; // 2 days
-    configuration["availability_topic"] = HASS_TOPIC_BASE + "B/available";
     configuration["state_topic"] = HASS_TOPIC_BASE + "/state";
     configuration["value_template"] = "{{ value_json.battery }}";
 
@@ -112,9 +107,6 @@ bool announce_device() {
     }
     serializeJsonPretty(configuration, Serial);
     Serial.println();
-    if (! publish_message(HASS_TOPIC_BASE + "B/available", "online")) {
-        return false;
-    }
     return true;
 }
 
