@@ -25,7 +25,7 @@ bool publish_config(const String& topic, const byte* bytes, size_t len) {
     Serial.print(topic);
     Serial.println("'");
 
-    if (! mqttClient.beginPublish(topic.c_str(), len, false)) {
+    if (! mqttClient.beginPublish(topic.c_str(), len, true)) {
         Serial.println("Error beginning publish");
         return false;
     }
@@ -45,12 +45,12 @@ bool publish_message(const String& topic, const String& msg) {
     Serial.print(topic);
     Serial.println("'");
 
-    bool res = mqttClient.publish(topic.c_str(), msg.c_str());
+    bool res = mqttClient.publish(topic.c_str(), msg.c_str(), true);
     for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
         Serial.println("Error publishing message");
         Serial.println(" try again in 5 seconds");
         delay(RETRY_DELAY);
-        res = mqttClient.publish(topic.c_str(), msg.c_str());
+        res = mqttClient.publish(topic.c_str(), msg.c_str(), true);
     }
     return res;
 }
