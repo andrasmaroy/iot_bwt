@@ -187,6 +187,7 @@ void setup() {
          * the correct value gets added.
          */
         state["battery"] = (uint8_t)((float)(analogRead(A0) - BATTERY_MIN) / (BATTERY_MAX - BATTERY_MIN) * 100);
+        if (state["battery"] > 100) state["battery"] = 100;
         state["water"] = 0;
         stateStr = "";
         serializeJson(state, stateStr);
