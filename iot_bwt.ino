@@ -218,6 +218,15 @@ void setup() {
             Serial.println();
 
             nvs_close(handle);
+
+            // Publish 0 usage again so that retained messages don't result in
+            // false data when picked up.
+            state["water"] = 0;
+            stateStr = "";
+            serializeJson(state, stateStr);
+            res = publish_message(HASS_TOPIC_BASE + "/state", stateStr);
+            serializeJsonPretty(state, Serial);
+            Serial.println();
         }
     }
 
