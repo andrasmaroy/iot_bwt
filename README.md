@@ -16,6 +16,7 @@ Flashing the FireBeetle with Arduino IDE: set upload speed to 921600 and flash f
 * [ArduinoJson](https://arduinojson.org/)
 * [PubSubClient](https://github.com/knolleary/pubsubclient/)
 * [ulpcc](https://github.com/jasonful/lcc)
+* [ezTime](https://github.com/ropg/ezTime)
 
 ## Configuration
 

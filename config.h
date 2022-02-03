@@ -24,9 +24,12 @@
 #define MAX_RETRY_COUNT 5
 #define RETRY_DELAY 5000
 
-#define WAKEUP_PERIOD 86400000000 // 1 day in us
+#define WAKEUP_HOUR     23
+#define WAKEUP_MINUTE   55
+#define WAKEUP_FALLBACK 86400 // 1 day as fallback
 
-const String HASS_TOPIC_BASE = "";
+#define TIMEZONE "CET-1CEST,M3.5.0,M10.5.0/3" // Europe/Budapest
+
 
 const char* Lets_Encrypt_R3 = \
     "-----BEGIN CERTIFICATE-----\n" \

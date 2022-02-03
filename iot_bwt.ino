@@ -1,4 +1,5 @@
 #include <ArduinoJson.h>
+#include <ezTime.h>
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 
@@ -10,6 +11,8 @@
 
 #include "config.h"
 #include "ulp_main.h"
+
+#define uS_TO_S_FACTOR 1000000ULL
 
 extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
 extern const uint8_t ulp_main_bin_end[]   asm("_binary_ulp_main_bin_end");
@@ -111,8 +114,16 @@ bool announce_device() {
 }
 
 void sleep() {
+    time_t wakeup_time = WAKEUP_FALLBACK;
+    // Get time from NTP to calculate next wakeup time
+    if (waitForSync(RETRY_DELAY)) {
+      Timezone tz;
+      tz.setPosix(TIMEZONE);
+      wakeup_time = makeTime(WAKEUP_HOUR, WAKEUP_MINUTE, 0, tz.day() + 1, tz.month(), tz.year()) - tz.now();
+    }
+
     Serial.println("Entering deep sleep\n\n");
-    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_PERIOD));
+    ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(wakeup_time * uS_TO_S_FACTOR));
     esp_deep_sleep_start();
 }
 
