@@ -160,7 +160,7 @@ void setup() {
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
 
-        wifiClient.setCACert(Lets_Encrypt_R3);
+        wifiClient.setCACert(Lets_Encrypt_R10);
 
         res = mqttClient.connected();
         for (uint8_t retries = 0; retries < MAX_RETRY_COUNT && ! res; retries++) {
